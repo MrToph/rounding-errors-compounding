@@ -1,17 +1,10 @@
-## Foundry
+# Rounding Errors Compounding Example
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+The repo tries to explore how exponentially compounding rounding errors can be caught with better tooling.
 
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
+This example shows a vault and let's assume we don't want the vault share price to be able to increase too high for whatever reason (see `Vault.mockError()`).
+The test shows an initial share price inflation attack using moderate funds to increase the share price by several orders of magnitude.
+The interesting part is that the number of `deposit` calls required to double the price is logarithmacially, i.e., the share price inflates exponentially with the number of `deposit` iterations. This is because the rounding error for the deposit calculation `deposit * 1e18 / price` leaves an asset donation of the `price (/ 1e18)` itself. Initially, at the price of `1.0` this is just `1` token, but once the share price crosses `2.0`, it will be `2` tokens, etc.
 
 ## Usage
 
@@ -25,42 +18,4 @@ $ forge build
 
 ```shell
 $ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
 ```
